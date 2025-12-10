@@ -1,0 +1,8 @@
+$fooErrorActionPreference = "Continue"
+$fooUserStatus = quser
+if(!$fooUserStatus){
+    exit 0
+    }
+else{
+    exit 1
+    }

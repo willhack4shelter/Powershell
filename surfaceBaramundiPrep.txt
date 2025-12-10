@@ -1,0 +1,31 @@
+# Admin Shares Freigeben
+New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Value 00000001 -PropertyType dword -Name "LocalAccountTokenFilterPolicy"
+Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Value 00000001 -Name "LocalAccountTokenFilterPolicy"
+
+# Anzeigen der Firewall Profile
+get-NetConnectionProfile
+
+# Setzen des Private Profiles
+set-NetConnectionProfile -InterfaceIndex XX -NetworkCategory Private
+
+# Erstellen der nötigen FW Rule
+New-NetFirewallRule -DisplayName "Baramundi Agent" -Direction inbound -LocalPort 135,445 -Protocol TCP -Action allow -profile domain,private
+
+# Installationsverzeichnis des Baramundi Agents
+\\JUNGW19S38.jung.ch\bms$\Client\Setup. 
+
+# Installationsargumente für den Agent
+setup.exe /S /V"/QN OPTIONS=655651 INTERNET_MODE=1 INTERNET_SERVER=baramundi.pirminjung.ch INTERNET_SERVERPORT=443 INTERNET_SERVERKEY=\"30820122300d06092a864886f70d01010105000382010f003082010a028201010084de3f88e71313d01d6e3165958897d8832d422ebaf7e3ee4f05be473d864ae5f01d22f72f96d7c24710abc239236bcde98f46b2141181e40236780543a282e36a1f258e0875cb4715b9e226df2a5da8d352e8e08c841006d02afd7ec884697040e22a56d67f7876f5c09dcd09c42af35810524f56d7873e7020ab3cdd2392e05ea54bf4c9197e6108562ee0c6da7067bac41dcfbfbe7f63686d5fd91a653cc27acac2b0b20eee33dc086ea8a3530be4356e51055363f35304dc829f54174671e16c8880d4ee8ff54d6cf5f8555b4926f970bfa0a0a51be4c3c5afdd072d8d85d9924927b0110337b8bf41db27164431146951aa54ca4011720062392f87c3050203010001\" SERVERKEY=\"30820122300d06092a864886f70d01010105000382010f003082010a0282010100a3f8162fd1603b5d95028e6817988b3e1b66e150487588d7a1d27f6204209e244af6b9f0569011959fad42d96ec95082f59bbd16c220be0edce139ee66e2f988ddd70144998982709c7eb2cc92eeb9881371588971c59067da96a72b12886a5033c6f89cedd5f1f521daa9269daff38e4301f5cd0458a28875bfdcc3a8fa2336e422f9bad0e244cf3a0933b6065b0855f4eee8765bda745cb2a304df4aa0a3b8b58cb349cb86e11fffb233e1d57da5dec85b6a2799efa9517a85e0aa235eb9bd4a21d656e1a9ec4a2af8c0989bc8a11b6ea536e02d0653cd321f6f144e55c853be41b97cafe5188d97d573b1366f072be7f9706f6d8a46791cbf38efa7e338650203010001\""
+
+# Verzeichnis der public_key.txt
+%ProgramData%\baramundi\BMA\appdata
+
+# Export MacAdresse für Sophos MacAdressFilter
+$fooMacAdr = Get-NetAdapter | where {$_.Name -Match 'WLAN'}
+$fooMac = $fooMacAdr.MacAddress
+$fooValue = "$env:COMPUTERNAME`t$fooMac"
+$User = "jung.ch\jungclient"
+$PWord = ConvertTo-SecureString -String "Jung_4_Lauf" -AsPlainText -Force
+$Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $User, $PWord
+New-PSDrive -Name X -PSProvider 'Filesystem' -Credential $Credential -Root \\jung.ch\dfs$\DIP$
+Add-Content '\\jung.ch\dfs$\DIP$\Software\Microsoft\Surface\MacAdressen.txt' -Value $fooValue

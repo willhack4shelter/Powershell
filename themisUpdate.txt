@@ -1,0 +1,6 @@
+﻿#Start-Transcript -Path "C:\temp\transcript0.txt"
+$user = $env:USERNAME
+$txt = "C:\Users\$User\.themis\themis42.properties"
+$content = Get-Content $txt | Where-Object {$_ -like "system.update.source.selection*"}
+(Get-Content $txt) -replace $content, "system.update.source.selection=0" | Set-Content $txt
+$user

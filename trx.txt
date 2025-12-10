@@ -1,0 +1,3 @@
+$URI = “https://apilist.tronscan.org/api/contract?contract=TK7W9QaepNdKcDT8h2Kyv6VDN7G17kE2Ew“
+$inhalt = Invoke-RestMethod -Uri $URI
+$inhalt
